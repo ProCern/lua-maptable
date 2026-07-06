@@ -1,6 +1,9 @@
 package = "maptable"
 lua = ">=5.1"
 
+[source]
+url = 'git+https://github.com/ProCern/lua-maptable.git'
+
 [description]
 summary = "A table that transforms keys through a mapping function on store and lookup, e.g. for case-insensitive tables."
 detailed = """
