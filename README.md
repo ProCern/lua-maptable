@@ -54,7 +54,7 @@ Or drop `src/maptable.lua` into your project and `require` it.
 
 ## API
 
-### `maptable.new(mapper)`
+### `maptable.new(mapper, options?)`
 
 Create a new maptable.
 
@@ -62,6 +62,13 @@ Create a new maptable.
   Must be deterministic (the same key always maps to the same value). If it
   returns `nil` for a key you try to store, Lua will raise a "table index is
   nil" error, same as any table.
+- `options` — optional table:
+  - `pairs` — `'mapped' | 'original'` — which key style the built-in `pairs(t)`
+    (via the `__pairs` metamethod) yields. Defaults to `'original'`. This only
+    affects default iteration; the standalone `maptable.pairs` and
+    `maptable.pairs_mapped` functions always yield their respective style. It's
+    handy when you hand the maptable to code that calls `pairs` itself and you
+    want it to see one style or the other.
 
 Returns the maptable, which you index like an ordinary table.
 
@@ -69,6 +76,9 @@ Returns the maptable, which you index like an ordinary table.
 local t = maptable.new(string.lower)
 t.Hello = 'world'
 print(t.hello)  --> world
+
+-- Make plain pairs() over this table yield mapped keys:
+local m = maptable.new(string.lower, { pairs = 'mapped' })
 ```
 
 ### `maptable.fill(maptable, iter, ...)`
@@ -115,6 +125,24 @@ Iterate the maptable using the mapped keys as pairs instead of the original. Ret
 for key, value in maptable.pairs_mapped(t) do
   print(key, value)
 end
+```
+
+### `maptable.set_pairs(maptable, mode)`
+
+Change which key style the built-in `pairs(t)` (and the `__pairs` metamethod)
+yields on an already-created maptable — the runtime equivalent of the `pairs`
+option to `new`. `mode` is `'mapped'` or `'original'`; anything else errors. As
+with the option, this only affects default iteration; the standalone
+`maptable.pairs`/`maptable.pairs_mapped` functions are unaffected.
+
+```lua
+local t = maptable.new(string.lower)
+t.Alpha = 1
+
+for k in pairs(t) do print(k) end       --> Alpha
+
+maptable.set_pairs(t, 'mapped')
+for k in pairs(t) do print(k) end       --> alpha
 ```
 
 ## Iteration modes

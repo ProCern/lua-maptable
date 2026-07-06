@@ -42,6 +42,12 @@ local function assert_nil(actual, ctx)
   end
 end
 
+local function assert_true(cond, ctx)
+  if not cond then
+    fail(ctx or "expected truthy value")
+  end
+end
+
 --- Drain an iterator triple (as returned by pairs/maptable.pairs) into a plain
 --- table plus a count, so results can be compared regardless of order.
 local function collect(iter, state, ctrl)
@@ -163,6 +169,54 @@ test("pairs_mapped yields mapped keys", function()
   assert_eq(out.alpha, 1, "mapped key present")
   assert_eq(out.beta, 2)
   assert_nil(out.Alpha, "original key absent in mapped mode")
+end)
+
+test("pairs option 'mapped' makes builtin pairs() yield mapped keys", function()
+  local t = maptable.new(lower, { pairs = "mapped" })
+  t.Alpha = 1
+  local out, n = collect(pairs(t))
+  assert_eq(n, 1)
+  assert_eq(out.alpha, 1, "mapped key yielded by __pairs")
+  assert_nil(out.Alpha, "original key absent")
+end)
+
+test("pairs option 'original' is the default for builtin pairs()", function()
+  local explicit = maptable.new(lower, { pairs = "original" })
+  local default = maptable.new(lower)
+  explicit.Alpha = 1
+  default.Alpha = 1
+  assert_eq((collect(pairs(explicit))).Alpha, 1)
+  assert_eq((collect(pairs(default))).Alpha, 1)
+end)
+
+test("set_pairs changes builtin pairs() mode on an existing table", function()
+  local t = maptable.new(lower)
+  t.Alpha = 1
+  assert_eq((collect(pairs(t))).Alpha, 1, "starts in original mode")
+
+  maptable.set_pairs(t, "mapped")
+  assert_eq((collect(pairs(t))).alpha, 1, "switched to mapped mode")
+
+  maptable.set_pairs(t, "original")
+  assert_eq((collect(pairs(t))).Alpha, 1, "switched back to original mode")
+end)
+
+test("standalone pairs/pairs_mapped ignore the configured mode", function()
+  local t = maptable.new(lower, { pairs = "mapped" })
+  t.Alpha = 1
+  -- Regardless of the instance's default mode, the explicit functions win.
+  assert_eq((collect(maptable.pairs(t))).Alpha, 1, "pairs() still original")
+  assert_eq((collect(maptable.pairs_mapped(t))).alpha, 1, "pairs_mapped() still mapped")
+end)
+
+test("invalid pairs mode errors", function()
+  ---@diagnostic disable-next-line: assign-type-mismatch
+  assert_true(not pcall(maptable.new, lower, { pairs = "bogus" }),
+    "new rejects a bad mode")
+  local t = maptable.new(lower)
+  ---@diagnostic disable-next-line: param-type-mismatch
+  assert_true(not pcall(maptable.set_pairs, t, "bogus"),
+    "set_pairs rejects a bad mode")
 end)
 
 test("pairs and pairs_mapped both work on the same table", function()
