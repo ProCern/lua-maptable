@@ -46,11 +46,15 @@ With [Lux](https://github.com/lumen-oss/lux):
 lx add maptable
 ```
 
+Or add it directly to your dependencies table as `maptable`.
+
+Or [get it through luarocks](https://luarocks.org/modules/taylorrichberger/maptable).
+
 Or drop `src/maptable.lua` into your project and `require` it.
 
 ## API
 
-### `maptable.new(mapper, options?)`
+### `maptable.new(mapper)`
 
 Create a new maptable.
 

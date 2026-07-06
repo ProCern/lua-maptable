@@ -68,6 +68,10 @@ local lower = string.lower
 -- Tests.
 ------------------------------------------------------------------------------
 
+test("needs mapper", function()
+  assert_eq(pcall(maptable.new), false)
+end)
+
 test("basic set and get", function()
   local t = maptable.new(lower)
   t.Hello = "world"
@@ -80,6 +84,26 @@ test("case-insensitive lookup via lowercasing mapper", function()
   assert_eq(t["content-type"], "text/plain")
   assert_eq(t["CONTENT-TYPE"], "text/plain")
   assert_eq(t["Content-Type"], "text/plain")
+  assert_eq(t.content_type, nil)
+end)
+
+--- @param key string
+--- @return string
+local function header_map(key)
+  return (key:lower():gsub('-', '_'))
+end
+
+test("case-insensitive lookup via lowercasing mapper", function()
+  local t = maptable.new(header_map)
+  t["Content-Type"] = "text/plain"
+  assert_eq(t["content-type"], "text/plain")
+  assert_eq(t["CONTENT-TYPE"], "text/plain")
+  assert_eq(t["Content-Type"], "text/plain")
+  assert_eq(t.content_type, 'text/plain')
+  t['aLphA-beta-GAMMA_delta-EPsiLON'] = 'value'
+  assert_eq(t['aLphA-beta-GAMMA_delta-EPsiLON'], 'value')
+  assert_eq(t['alpha-beta-gamma_delta-epsilon'], 'value')
+  assert_eq(t.alpha_beta_gamma_delta_epsilon, 'value')
 end)
 
 test("missing key returns nil", function()

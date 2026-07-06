@@ -91,7 +91,7 @@ end
 local function new(mapper)
   local self = setmetatable({
     [private_key] = {
-      mapper = mapper,
+      mapper = assert(mapper, 'Need mapper argument'),
       key_table = {},
       mapped_table = {},
     },
