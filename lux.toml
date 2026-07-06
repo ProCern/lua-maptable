@@ -20,17 +20,11 @@ helper efficiently loads a maptable from any iterator. Works on Lua 5.1 through
 5.4 (a standalone `pairs` function is provided for 5.1, where the `__pairs`
 metamethod is unavailable).
 """
-maintainer = "Taylor Richberger"
+maintainer = "Taylor Richberger <taylor.richberger@procern.com>"
 license = "MPL-2.0"
 labels = [ "table", "case-insensitive", "data-structures" ]
-
-
-[dependencies]
-# Add your dependencies here
-# `busted = ">=2.0"`
-
-[run]
-args = [ "src/main.lua" ]
+homepage = 'https://github.com/ProCern/lua-maptable'
+issues_url = 'https://github.com/ProCern/lua-maptable/issues'
 
 [test]
 type = "command"
