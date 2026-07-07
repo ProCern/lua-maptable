@@ -4,9 +4,9 @@ local private_key = {}
 --- @alias maptable.PairsMode 'mapped'|'original'
 
 --- @class maptable.Private<K, M, V>
---- @field mapper (fun(key: K): M)
---- @field mapped_table {[M]: V}
---- @field key_table {[M]: K}
+--- @field mapper (fun(key: K): M) The function for mapping from the raw key to the mapped key
+--- @field mapped_table {[M]: V} The table that actually stores the values
+--- @field key_table {[M]: K} the table that stores the insertion key for each mapped key.
 --- @field pairs_mode maptable.PairsMode
 
 --- Validate and return a pairs mode, erroring on anything unexpected.
